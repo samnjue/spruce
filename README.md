@@ -4,6 +4,7 @@ I initialised the project and called it Spruce because I wanted to make a coffee
 
 ## Home Screen
 I like the iOS dock and icons so I used them. It's currently lonely with a lot of placeholders but I'll add more apps as I continue with the project.
+
 <img src="https://github.com/user-attachments/assets/1e511aa5-33ee-42bc-8374-6c802f776d97" alt="Screenshot" width="200"/>
 
 ## Phone App
