@@ -11,7 +11,7 @@ I like the iOS dock and icons so I used them. It's currently lonely with a lot o
 
 Nothing too crazy, just a basic phone app with 5 screens. The calling action is just a mockup, I thought about linking it to the native phone app but I wanted to design the caller screen, which I love.
 
-<div style="display: flex; gap: 16px;">
+<div style="display: flex; flex-wrap: wrap; gap: 12px; padding: 16px 0;">
   <img src="https://github.com/user-attachments/assets/7265f679-847c-4b49-ac2d-ccd798230566" alt="Phone Screenshot 1" width="200"/>
   <img src="https://github.com/user-attachments/assets/e5feda82-bef6-4234-b316-ba9eda584176" alt="Phone Screenshot 2" width="200"/>
 </div>
