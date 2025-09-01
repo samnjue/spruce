@@ -48,7 +48,7 @@ export default function Index() {
           <View style={styles.buttonRow}>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => router.push("/dialer")}
+              onPress={() => router.push("/dialer/(tabs)/phone")}
             >
               <Image
                 source={require("../assets/app_icons/phone_icon.png")}
@@ -56,14 +56,20 @@ export default function Index() {
                 resizeMode="contain"
               />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => router.push("/browser")}
+            >
               <Image
                 source={require("../assets/app_icons/safari_icon.png")}
                 style={{ width: iconSize, height: iconSize }}
                 resizeMode="contain"
               />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => router.push("/messages")}
+            >
               <Image
                 source={require("../assets/app_icons/message_icon.png")}
                 style={{ width: iconSize, height: iconSize }}

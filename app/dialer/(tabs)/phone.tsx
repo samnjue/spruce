@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     flex: 2,
     justifyContent: "center",
     alignItems: "center",
-    top: 60,
+    top: -40,
   },
   addNumberText: {
     fontSize: 18,
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
     flex: 5,
     paddingBottom: 20,
     paddingHorizontal: 20,
-    top: 110,
+    top: -30,
   },
   row: {
     flexDirection: "row",
