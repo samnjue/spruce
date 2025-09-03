@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
 
   content: { flex: 1, backgroundColor: "#171717", paddingHorizontal: 16 },
   centered: { justifyContent: "center", alignItems: "center" },
-  loadingText: { color: "#FFFFFF", fontSize: 16 },
+  loadingText: { color: "#FFFFFF", fontSize: 16, fontWeight: "500" },
 
   dayHeader: {
     color: "#888888",
