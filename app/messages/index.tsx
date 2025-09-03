@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -17,16 +17,14 @@ import {
   GroupedMessages,
 } from "../../supabase";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { router } from "expo-router";
 
-// --- Helpers: parse "Monday, 4 August" into a Date (assumes current year) ---
 const parseDayLabelToDate = (label: string): Date | null => {
-  // Expected: "Monday, 4 August"
-  // We ignore weekday and build a Date from "4 August <currentYear>"
   try {
     const parts = label.split(",").map((s) => s.trim());
     if (parts.length < 2) return null;
 
-    const dayNumMonth = parts[1]; // "4 August"
+    const dayNumMonth = parts[1];
     const [dayStr, monthStr] = dayNumMonth.split(" ").map((s) => s.trim());
     const dayNum = parseInt(dayStr, 10);
     if (Number.isNaN(dayNum)) return null;
@@ -39,11 +37,8 @@ const parseDayLabelToDate = (label: string): Date | null => {
   }
 };
 
-// --- Helpers: parse "6.00 am" / "7:05 pm" into minutes since midnight ---
 const parseTimeToMinutes = (timeStr: string): number => {
-  // Normalize dots to colons, lower-case am/pm
   const s = timeStr.replace(/\./g, ":").trim().toLowerCase();
-  // Accept "h", "h:mm", possibly with am/pm
   const m = s.match(/^(\d{1,2})(?::(\d{1,2}))?\s*(am|pm)?$/i);
   if (!m) return Number.MAX_SAFE_INTEGER;
 
@@ -52,7 +47,7 @@ const parseTimeToMinutes = (timeStr: string): number => {
   const suffix = m[3];
 
   if (suffix === "am") {
-    if (hours === 12) hours = 0; // 12:xx am -> 00:xx
+    if (hours === 12) hours = 0;
   } else if (suffix === "pm") {
     if (hours !== 12) hours += 12;
   }
@@ -60,8 +55,6 @@ const parseTimeToMinutes = (timeStr: string): number => {
   return hours * 60 + minutes;
 };
 
-// --- Link/phone rendering with safe regexes ---
-// --- Link/phone rendering with safe regexes ---
 const renderTextWithLinks = (text: string) => {
   const urlRe = /\b((?:https?:\/\/|www\.)[^\s]+)/gi;
   const phoneRe = /\b(\+?\d[\d\s\-]{7,}\d)\b/g;
@@ -131,6 +124,7 @@ const MPESAScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
+  const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     (async () => {
@@ -145,7 +139,12 @@ const MPESAScreen: React.FC = () => {
     })();
   }, []);
 
-  // Group by day label
+  useEffect(() => {
+    if (!loading && scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({ animated: false });
+    }
+  }, [loading]);
+
   const grouped: GroupedMessages = useMemo(() => {
     return messages.reduce((acc: GroupedMessages, m) => {
       if (!acc[m.day]) acc[m.day] = [];
@@ -154,17 +153,14 @@ const MPESAScreen: React.FC = () => {
     }, {});
   }, [messages]);
 
-  // Sort day groups chronologically so the most recent day is at the bottom.
-  // Example: Monday, 4 Aug ABOVE Tuesday, 5 Aug.
   const sortedDayKeys = useMemo(() => {
     return Object.keys(grouped).sort((a, b) => {
       const da = parseDayLabelToDate(a)?.getTime() ?? 0;
       const db = parseDayLabelToDate(b)?.getTime() ?? 0;
-      return da - db; // ascending -> older days first, newer days last (bottom)
+      return da - db;
     });
   }, [grouped]);
 
-  // Sort messages within each day by time (older first, newer last)
   const getSortedMessagesForDay = (day: string) => {
     const list = grouped[day] ?? [];
     return [...list].sort((m1, m2) => {
@@ -174,7 +170,6 @@ const MPESAScreen: React.FC = () => {
     });
   };
 
-  // --- Render message card ---
   const renderMessage = (message: Message) => (
     <View key={message.id} style={{ marginBottom: 16 }}>
       <View style={styles.messageCard}>
@@ -182,7 +177,6 @@ const MPESAScreen: React.FC = () => {
           {renderTextWithLinks(message.content)}
         </View>
       </View>
-      {/* Time now OUTSIDE the card, bottom-right aligned */}
       <Text style={styles.timeText}>{message.time}</Text>
     </View>
   );
@@ -190,14 +184,16 @@ const MPESAScreen: React.FC = () => {
   return (
     <SafeAreaView style={[styles.container, { paddingTop: insets.top + 20 }]}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
           <Ionicons name="chevron-back-outline" size={24} color="#FFFFFF" />
         </TouchableOpacity>
 
         <View style={styles.headerCenter}>
           <View style={styles.avatarContainer}>
-            {/* person-outline per your spec, icon color #E8F5FD, circle bg #6BBFEF */}
-            <Ionicons name="person-outline" size={20} color="#E8F5FD" />
+            <Ionicons name="person" size={20} color="#E8F5FD" />
           </View>
           <Text style={styles.headerTitle}>MPESA</Text>
         </View>
@@ -212,7 +208,11 @@ const MPESAScreen: React.FC = () => {
           <Text style={styles.loadingText}>Loading messages...</Text>
         </View>
       ) : (
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          ref={scrollViewRef}
+          style={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
           {sortedDayKeys.map((day) => (
             <View key={day}>
               <Text style={styles.dayHeader}>{day}</Text>
